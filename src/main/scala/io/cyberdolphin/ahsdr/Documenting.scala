@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 trait Documenting extends Directives {
 
   private val UUID = "([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})".r
-  private val ObjectId = "(/^[a-f\\d]{24}$/i)".r
+  private val ObjectId = "([a-fA-F0-9]{24})".r
 
   private def isInt(s: String) = Try(s.toInt).isSuccess
   private def isDouble(s: String) = Try(s.toDouble).isSuccess
