@@ -6,6 +6,8 @@
     *  [POST /api/user](#post-apiuser)  
     *  [POST /api/user](#post-apiuser)  
     *  [GET /api/users](#get-apiusers)  
+    *  [GET /api/users/{index}](#get-apiusers{index})  
+    *  [GET /api/users/{index}](#get-apiusers{index})  
 
 
 
@@ -135,4 +137,48 @@ Name        | required | type     | default value | description | example value
   "id": 5,
   "name": "Jane"
 }]
+```
+
+
+##  [GET /api/users/{index}](#get-apiusers{index}) 
+(none/none)
+
+
+
+### Request body
+
+no content
+
+
+
+### Response 200
+(application/json)
+
+```json
+{
+  "id": 3,
+  "name": "Jake"
+}
+```
+
+
+##  [GET /api/users/{index}](#get-apiusers{index}) 
+(none/none)
+
+
+
+### Request body
+
+no content
+
+
+
+### Response 200
+(application/json)
+
+```json
+{
+  "id": 4,
+  "name": "Jacob"
+}
 ```

@@ -22,6 +22,14 @@ class ExampleApiSpec extends WordSpec with MustMatchers
   with JsonSupport with Documenting
   with ScalatestRouteTest with BeforeAndAfterAll {
 
+  private val users = List(
+    User(1L, "John"),
+    User(2L, "Jim"),
+    User(3L, "Jake"),
+    User(4L, "Jacob"),
+    User(5L, "Jane")
+  )
+
   val route = {
     pathPrefix("api") {
       path("user") {
@@ -34,16 +42,16 @@ class ExampleApiSpec extends WordSpec with MustMatchers
             user
           }
         }
-      } ~ path("users") {
-        (get & parameter("offset") & parameter("limit")) {
-          (offset, limit) => complete {
-            List(
-              User(1L, "John"),
-              User(2L, "Jim"),
-              User(3L, "Jake"),
-              User(4L, "Jacob"),
-              User(5L, "Jane")
-            )
+      } ~ pathPrefix("users") {
+        get {
+          (pathEnd & parameter("offset") & parameter("limit")) {
+            (o, l) => complete {
+              users
+            }
+          } ~ path(IntNumber) { number =>
+            complete {
+              users(number)
+            }
           }
         }
       }
@@ -106,6 +114,24 @@ class ExampleApiSpec extends WordSpec with MustMatchers
 
       req4 ~> document(route) ~> check {
         entityAs[User] mustBe User(500L, "Jimbo")
+      }
+
+      val req5 = HttpRequest(
+        method = HttpMethods.GET,
+        uri = Uri("/api/users/2")
+      )
+
+      req5 ~> document(route, "/api/users/{index}") ~> check {
+        entityAs[User] mustBe users(2)
+      }
+
+      val req6 = HttpRequest(
+        method = HttpMethods.GET,
+        uri = Uri("/api/users/3")
+      )
+
+      req6 ~> document(route, "/api/users/{index}") ~> check {
+        entityAs[User] mustBe users(3)
       }
     }
   }

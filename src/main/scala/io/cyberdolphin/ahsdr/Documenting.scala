@@ -1,5 +1,7 @@
 package io.cyberdolphin.ahsdr
 
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path.Segment
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -95,14 +97,16 @@ trait Documenting extends Directives {
     }
   }
 
-  def document(route: Route) = {
+  def document(route: Route, endpoint: String): Route = document(route, Some(endpoint))
+
+  def document(route: Route, endpoint: Option[String] = None): Route = {
     // Route.seal()
 
     extractRequest { request =>
 
       val requestDetails = RequestDetails(
         request.method.value,
-        request.uri.path.toString(),
+        endpoint.getOrElse(request.uri.path.toString()),
         request.entity.contentType.value,
         request.headers.map(h => h.name() -> h.value()) (breakOut),
         awaitContentOrNone(
