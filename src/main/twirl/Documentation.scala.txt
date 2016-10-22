@@ -1,0 +1,62 @@
+@(title: String, entries: List[RouteDetails])
+
+@paramType(param: Any) = @{
+  scala.util.Try(param.toString.toDouble) match {
+    case scala.util.Success(_) => "number"
+    case scala.util.Failure(_) => "string"
+  }
+}
+
+@contentTypeBlock(contentType: String) = @{
+  contentType match {
+    case "application/json" | "application/hal+json"  => "json"
+    case _ => ""
+  }
+}
+
+@body(contentType: String, content: Option[String]) = @{
+  val block = contentTypeBlock(contentType)
+  content match {
+    case None => "no content"
+    case Some(c) => s"```$block\n$c\n```"
+  }
+}
+
+@anchor(request: RequestDetails) = { [@request.method @request.uri](#@request.method.toLowerCase-@request.uri.toLowerCase.replaceAll("/", "")) }
+
+# @title
+
+* [@title](#@{title.toLowerCase})
+@for(RouteDetails(request, response) <- entries) {
+    * @anchor(request) }
+
+@for(RouteDetails(request, response) <- entries) {
+
+## @anchor(request)
+(@request.contentType)
+
+@if(request.params.nonEmpty) {
+### URL Parameters
+Name        | required | type     | default value | description | example value
+--- | ---  | --- | --- | --- | ---
+@for(param <- request.params) { @param._1 | | @paramType(param._2) | | | @param._2
+    }
+}
+
+### Request body
+
+@body(request.contentType, request.body)
+
+@if(request.headers.nonEmpty) {
+### Request headers
+Name        | required | type     | default value | description | example value
+--- | ---  | --- | --- | --- | ---
+@for(header <- request.headers) { @header._1 | | @paramType(header._2) | | | @header._2
+    }
+}
+
+### Response @response.statusCode
+(@response.contentType)
+
+@body(response.contentType, response.body)
+}
