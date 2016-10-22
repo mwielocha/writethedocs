@@ -119,8 +119,6 @@ trait Documenting extends Directives {
 
     extractRequest { request =>
 
-
-
       val requestDetails = RequestDetails(
         request.method.value,
         endpoint.getOrElse(normalize(request.uri.path).mkString),
