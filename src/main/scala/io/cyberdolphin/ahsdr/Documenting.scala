@@ -1,20 +1,18 @@
 package io.cyberdolphin.ahsdr
 
 import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri.Path.Segment
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
 import better.files._
 import com.typesafe.config.ConfigFactory
-import org.scalatest.{BeforeAndAfterAll, Suite}
 
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
 import scala.collection.breakOut
-import scala.util.Try
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.util.Try
 
 /**
   * Created by mwielocha on 22/10/2016.
