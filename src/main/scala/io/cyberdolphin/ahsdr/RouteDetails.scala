@@ -7,12 +7,14 @@ case class RouteDetails(
   request: RequestDetails,
   response: ResponseDetails
 ) {
+
   override def equals(obj: scala.Any): Boolean = {
     obj match {
       case RouteDetails(otherRequest, otherResponse) =>
-        request.uri == otherRequest.uri &&
-          request.method == otherRequest.method
+        request.id == otherRequest.id
       case _ => false
     }
   }
+
+  override def hashCode(): Int = request.id.hashCode
 }

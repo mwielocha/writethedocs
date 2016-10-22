@@ -22,7 +22,7 @@
   }
 }
 
-@anchor(request: RequestDetails) = { [@request.method @request.uri](#@request.method.toLowerCase-@request.uri.toLowerCase.replaceAll("/", "")) }
+@anchor(request: RequestDetails) = { [@request.method @request.uri](#@request.id) }
 
 # @title
 
@@ -33,7 +33,7 @@
 @for(RouteDetails(request, response) <- entries) {
 
 ## @anchor(request)
-(@request.contentType)
+@if(request.contentType.isDefined) { (@request.contentType.get) }
 
 @if(request.params.nonEmpty) {
 ### URL Parameters

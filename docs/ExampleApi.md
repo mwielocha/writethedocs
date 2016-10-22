@@ -4,15 +4,13 @@
 
     *  [GET /api/user](#get-apiuser)  
     *  [POST /api/user](#post-apiuser)  
-    *  [POST /api/user](#post-apiuser)  
     *  [GET /api/users](#get-apiusers)  
-    *  [GET /api/users/{index}](#get-apiusers{index})  
-    *  [GET /api/users/{index}](#get-apiusers{index})  
+    *  [GET /api/users/{index}](#get-apiusersindex)  
 
 
 
 ##  [GET /api/user](#get-apiuser) 
-(none/none)
+ (none/none) 
 
 
 ### URL Parameters
@@ -40,7 +38,7 @@ no content
 
 
 ##  [POST /api/user](#post-apiuser) 
-(application/json)
+ (application/json) 
 
 
 
@@ -62,39 +60,12 @@ no content
 {
   "id": 2,
   "name": "Hello"
-}
-```
-
-
-##  [POST /api/user](#post-apiuser) 
-(application/json)
-
-
-
-### Request body
-
-```json
-{
-  "id": 500,
-  "name": "Jimbo"
-}
-```
-
-
-
-### Response 200
-(application/json)
-
-```json
-{
-  "id": 500,
-  "name": "Jimbo"
 }
 ```
 
 
 ##  [GET /api/users](#get-apiusers) 
-(none/none)
+ (none/none) 
 
 
 ### URL Parameters
@@ -140,8 +111,8 @@ Name        | required | type     | default value | description | example value
 ```
 
 
-##  [GET /api/users/{index}](#get-apiusers{index}) 
-(none/none)
+##  [GET /api/users/{index}](#get-apiusersindex) 
+ (none/none) 
 
 
 
@@ -158,27 +129,5 @@ no content
 {
   "id": 3,
   "name": "Jake"
-}
-```
-
-
-##  [GET /api/users/{index}](#get-apiusers{index}) 
-(none/none)
-
-
-
-### Request body
-
-no content
-
-
-
-### Response 200
-(application/json)
-
-```json
-{
-  "id": 4,
-  "name": "Jacob"
 }
 ```

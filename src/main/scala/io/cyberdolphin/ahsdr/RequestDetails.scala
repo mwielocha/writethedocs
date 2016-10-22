@@ -10,4 +10,11 @@ case class RequestDetails(
   headers: Map[String, String],
   body: Option[String],
   params: Seq[(String, String)]
-)
+) {
+
+  val id = {
+    s"$method-$uri"
+      .replaceAll("/|\\{|\\}", "")
+      .toLowerCase
+  }
+}
