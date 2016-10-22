@@ -24,7 +24,7 @@ trait Documenting extends Directives {
   private val config = ConfigFactory.defaultApplication()
 
   private val target = Try {
-    config.getString("ahsdt.targer.dir")
+    config.getString("ahsdr.targer.dir")
   }.getOrElse("./docs")
 
   def title = {
