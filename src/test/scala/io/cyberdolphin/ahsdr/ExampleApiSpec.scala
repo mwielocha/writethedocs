@@ -121,7 +121,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/2")
       )
 
-      req5 ~> document(route, "/api/users/{index}") ~> check {
+      req5 ~> document(route) ~> check {
         entityAs[User] mustBe users(2)
       }
 
@@ -130,7 +130,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/3")
       )
 
-      req6 ~> document(route, "/api/users/{index}") ~> check {
+      req6 ~> document(route) ~> check {
         entityAs[User] mustBe users(3)
       }
     }

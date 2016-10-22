@@ -6,7 +6,7 @@ val akkaVersion = "2.4.11"
 lazy val root = (project in file(".")).
   settings(
     name := "akka-http-self-documenting-routes",
-    version := "1.0",
+    version := "1.2",
     scalaVersion := "2.11.8",
     organization := "io.cyberdolphin"
   ).enablePlugins(SbtTwirl)

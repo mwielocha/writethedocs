@@ -33,7 +33,7 @@
 @for(RouteDetails(request, response) <- entries) {
 
 ## @anchor(request)
-@if(request.contentType.isDefined) { (@request.contentType.get) }
+(@request.contentType)
 
 @if(request.params.nonEmpty) {
 ### URL Parameters

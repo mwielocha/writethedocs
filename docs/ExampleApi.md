@@ -5,12 +5,12 @@
     *  [GET /api/user](#get-apiuser)  
     *  [POST /api/user](#post-apiuser)  
     *  [GET /api/users](#get-apiusers)  
-    *  [GET /api/users/{index}](#get-apiusersindex)  
+    *  [GET /api/users/{integer}](#get-apiusersinteger)  
 
 
 
 ##  [GET /api/user](#get-apiuser) 
- (none/none) 
+(none/none)
 
 
 ### URL Parameters
@@ -38,7 +38,7 @@ no content
 
 
 ##  [POST /api/user](#post-apiuser) 
- (application/json) 
+(application/json)
 
 
 
@@ -65,7 +65,7 @@ no content
 
 
 ##  [GET /api/users](#get-apiusers) 
- (none/none) 
+(none/none)
 
 
 ### URL Parameters
@@ -111,8 +111,8 @@ Name        | required | type     | default value | description | example value
 ```
 
 
-##  [GET /api/users/{index}](#get-apiusersindex) 
- (none/none) 
+##  [GET /api/users/{integer}](#get-apiusersinteger) 
+(none/none)
 
 
 

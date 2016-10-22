@@ -21,6 +21,12 @@ import scala.collection.mutable.ArrayBuffer
   */
 trait Documenting extends Directives {
 
+  private val UUID = "([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})".r
+  private val ObjectId = "(/^[a-f\\d]{24}$/i)".r
+
+  private def isInt(s: String) = Try(s.toInt).isSuccess
+  private def isDouble(s: String) = Try(s.toDouble).isSuccess
+
   private val details = new ArrayBuffer[RouteDetails]()
 
   private val config = ConfigFactory.defaultApplication()
@@ -97,6 +103,17 @@ trait Documenting extends Directives {
     }
   }
 
+  private def normalize(path: Uri.Path, result: List[String] = List.empty): List[String] = {
+    if(path.isEmpty) result
+    else path.head.toString match {
+      case UUID(_) => normalize(path.tail, result :+ "{uuid}")
+      case ObjectId(_) => normalize(path.tail, result :+ "{objectId}")
+      case s if isInt(s) => normalize(path.tail, result :+ "{integer}")
+      case s if isDouble(s) => normalize(path.tail, result :+ "{double}")
+      case s => normalize(path.tail, result :+ s)
+    }
+  }
+
   def document(route: Route, endpoint: String): Route = document(route, Some(endpoint))
 
   def document(route: Route, endpoint: Option[String] = None): Route = {
@@ -104,9 +121,11 @@ trait Documenting extends Directives {
 
     extractRequest { request =>
 
+
+
       val requestDetails = RequestDetails(
         request.method.value,
-        endpoint.getOrElse(request.uri.path.toString()),
+        endpoint.getOrElse(normalize(request.uri.path).mkString),
         request.entity.contentType.value,
         request.headers.map(h => h.name() -> h.value()) (breakOut),
         awaitContentOrNone(
