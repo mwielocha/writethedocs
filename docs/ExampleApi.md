@@ -5,6 +5,7 @@
     *  [GET /api/user](#get-apiuser)  
     *  [POST /api/user](#post-apiuser)  
     *  [GET /api/users](#get-apiusers)  
+    *  [PUT /api/users](#put-apiusers)  
     *  [GET /api/users/{integer}](#get-apiusersinteger)  
 
 
@@ -12,11 +13,13 @@
 ##  [GET /api/user](#get-apiuser) 
 (none/none)
 
+ Fetch user 
+
 
 ### URL Parameters
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
- name | | string | | | John
+  name | false | string |  | Just some user name | John 
     
 
 
@@ -39,6 +42,8 @@ no content
 
 ##  [POST /api/user](#post-apiuser) 
 (application/json)
+
+ Fetch user 
 
 
 
@@ -68,11 +73,13 @@ no content
 (none/none)
 
 
+
+
 ### URL Parameters
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
- offset | | number | | | 0
-     limit | | number | | | 10
+  offset |  | number |  |  | 0 
+      limit |  | number |  |  | 10 
     
 
 
@@ -84,7 +91,7 @@ no content
 ### Request headers
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
- Authorization | | string | | | Basic YWRtaW46YWRtaW4=
+  Authorization |  | string |  |  | Basic YWRtaW46YWRtaW4= 
     
 
 
@@ -111,8 +118,31 @@ Name        | required | type     | default value | description | example value
 ```
 
 
+##  [PUT /api/users](#put-apiusers) 
+(none/none)
+
+
+
+
+
+### Request body
+
+no content
+
+
+
+### Response 405
+(text/plain; charset=UTF-8)
+
+```
+HTTP method not allowed, supported methods: GET
+```
+
+
 ##  [GET /api/users/{integer}](#get-apiusersinteger) 
 (none/none)
+
+
 
 
 

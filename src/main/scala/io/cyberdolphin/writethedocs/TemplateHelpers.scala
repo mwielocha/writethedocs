@@ -1,4 +1,4 @@
-package io.cyberdolphin.ahsdr
+package io.cyberdolphin.writethedocs
 
 import spray.json._
 

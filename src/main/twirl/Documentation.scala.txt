@@ -1,9 +1,11 @@
 @(title: String, entries: List[RouteDetails])
 
 @paramType(param: Any) = @{
-  scala.util.Try(param.toString.toDouble) match {
-    case scala.util.Success(_) => "number"
-    case scala.util.Failure(_) => "string"
+  if(param.toString.isEmpty) "" else {
+    scala.util.Try(param.toString.toDouble) match {
+      case scala.util.Success(_) => "number"
+      case scala.util.Failure(_) => "string"
+    }
   }
 }
 
@@ -22,24 +24,28 @@
   }
 }
 
+@row(in: ValueDetails) = { @in.name | @in.required.map(_.toString).getOrElse("") | @{in.`type`.getOrElse(paramType(in.value))} | @in.defaultValue.getOrElse("") | @in.description.getOrElse("") | @in.value }
+
 @anchor(request: RequestDetails) = { [@request.method @request.uri](#@request.id) }
 
 # @title
 
 * [@title](#@{title.toLowerCase})
-@for(RouteDetails(request, response) <- entries) {
+@for(RouteDetails(request, response, _) <- entries) {
     * @anchor(request) }
 
-@for(RouteDetails(request, response) <- entries) {
+@for(RouteDetails(request, response, description) <- entries) {
 
 ## @anchor(request)
 (@request.contentType)
+
+@if(description.nonEmpty) { @description.get }
 
 @if(request.params.nonEmpty) {
 ### URL Parameters
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
-@for(param <- request.params) { @param._1 | | @paramType(param._2) | | | @param._2
+@for(param <- request.params) { @row(param)
     }
 }
 
@@ -51,7 +57,7 @@ Name        | required | type     | default value | description | example value
 ### Request headers
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
-@for(header <- request.headers) { @header._1 | | @paramType(header._2) | | | @header._2
+@for(header <- request.headers) { @row(header)
     }
 }
 

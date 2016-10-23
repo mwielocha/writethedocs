@@ -1,11 +1,13 @@
-package io.cyberdolphin.ahsdr
+package io.cyberdolphin.writethedocs
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, Uri}
+import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, MustMatchers, WordSpec}
+import io.cyberdolphin.writethedocs.scalatest.SelfDocumentingRoutesSpec
+import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpec}
 import spray.json._
 
 /**
@@ -19,8 +21,25 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 }
 
 class ExampleApiSpec extends WordSpec with MustMatchers
-  with JsonSupport with Documenting
+  with JsonSupport with SelfDocumentingRoutesSpec with Directives
   with ScalatestRouteTest with BeforeAndAfterAll {
+
+
+  override def routeHints: RouteHints = {
+    case d@RouteDetails(r, _, _) if r.uri == "/api/user" =>
+      d.withDescription("Fetch user")
+  }
+
+  override def paramHints: ValueHints = {
+    case v@ValueDetails("name", _, _, _, _, _) =>
+      v.withRequired(false)
+        .withDescription("Just some user name")
+  }
+
+  override protected def documentSettings: DocumentationSettings = {
+    super.documentSettings
+      .withIncludeBadRequests(true)
+  }
 
   private val users = List(
     User(1L, "John"),
@@ -30,7 +49,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
     User(5L, "Jane")
   )
 
-  val route = {
+  val route = Route.seal {
     pathPrefix("api") {
       path("user") {
         get {
@@ -72,7 +91,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         )
       )
 
-      req1 ~> document(route) ~> check {
+      req1 ~> selfDocumentedRoute(route) ~> check {
         entityAs[User] mustBe User(1L, "Jim")
       }
 
@@ -82,7 +101,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         entity = marshal(User(2L, "Hello"))
       )
 
-      req2 ~> document(route) ~> check {
+      req2 ~> selfDocumentedRoute(route) ~> check {
         entityAs[User] mustBe User(2L, "Hello")
       }
 
@@ -102,7 +121,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         )
       )
 
-      req3 ~> document(route) ~> check {
+      req3 ~> selfDocumentedRoute(route) ~> check {
         entityAs[List[User]].size mustBe 5
       }
 
@@ -112,7 +131,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         entity = marshal(User(500L, "Jimbo"))
       )
 
-      req4 ~> document(route) ~> check {
+      req4 ~> selfDocumentedRoute(route) ~> check {
         entityAs[User] mustBe User(500L, "Jimbo")
       }
 
@@ -121,7 +140,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/2")
       )
 
-      req5 ~> document(route) ~> check {
+      req5 ~> selfDocumentedRoute(route) ~> check {
         entityAs[User] mustBe users(2)
       }
 
@@ -130,14 +149,18 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/3")
       )
 
-      req6 ~> document(route) ~> check {
+      req6 ~> selfDocumentedRoute(route) ~> check {
         entityAs[User] mustBe users(3)
       }
-    }
-  }
 
-  override protected def afterAll(): Unit = {
-    super.afterAll()
-    writeDocumentation()
+      val req7 = HttpRequest(
+        method = HttpMethods.PUT,
+        uri = Uri("/api/users")
+      )
+
+      req7 ~> selfDocumentedRoute(route) ~> check {
+        status.intValue() mustBe 405
+      }
+    }
   }
 }
