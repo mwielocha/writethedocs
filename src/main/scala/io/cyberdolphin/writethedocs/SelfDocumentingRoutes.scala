@@ -35,6 +35,7 @@ trait SelfDocumentingRoutes {
     getClass
       .getSimpleName
       .replace("Spec", "")
+      .replace("Tests", "")
   }
 
   def documentFileName = {
