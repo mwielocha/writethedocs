@@ -181,14 +181,17 @@ trait SelfDocumentingRoutes {
           (d.response.statusCode / 100) == 5
       }
 
-      Try(output < "")
+      if (filtered.nonEmpty) {
 
-      write {
-        txt.Documentation.render(
-          documentTitle,
-          filtered.toList.distinct
-            .sortBy(_.request.uri)
-        ).body.trim()
+        Try(output < "")
+
+        write {
+          txt.Documentation.render(
+            documentTitle,
+            filtered.toList.distinct
+              .sortBy(_.request.uri)
+          ).body.trim()
+        }
       }
     }
 
