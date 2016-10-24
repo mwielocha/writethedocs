@@ -6,7 +6,7 @@ val akkaVersion = "2.4.11"
 lazy val root = (project in file(".")).
   settings(
     name := "writethedocs",
-    version := "0.4.0",
+    version := "0.4.1",
     scalaVersion := "2.11.8",
     organization := "io.cyberdolphin"
   ).enablePlugins(SbtTwirl)
