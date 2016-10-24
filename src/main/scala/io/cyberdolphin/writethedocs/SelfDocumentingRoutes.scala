@@ -183,13 +183,30 @@ trait SelfDocumentingRoutes {
 
       if (filtered.nonEmpty) {
 
+        // try to guess the most detailed call to render
+
+
+        val grouped = filtered
+          .groupBy(_.request.id)
+
+        val scored: List[RouteDetails] = {
+          grouped.flatMap {
+            case (_, routes) =>
+              routes.toList
+                .sortBy(_.score) {
+                  Ordering.Int.reverse
+                }.headOption
+          } (breakOut)
+        }
+
         Try(output < "")
 
         write {
           txt.Documentation.render(
             documentTitle,
-            filtered.toList.distinct
-              .sortBy(_.request.uri)
+            scored.sortBy {
+              _.request.uri
+            }
           ).body.trim()
         }
       }

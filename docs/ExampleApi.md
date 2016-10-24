@@ -4,8 +4,8 @@
 
     *  [GET /api/user](#get-apiuser)  
     *  [POST /api/user](#post-apiuser)  
-    *  [GET /api/users](#get-apiusers)  
     *  [PUT /api/users](#put-apiusers)  
+    *  [GET /api/users](#get-apiusers)  
     *  [GET /api/users/{integer}](#get-apiusersinteger)  
 
 
@@ -69,6 +69,27 @@ no content
 ```
 
 
+##  [PUT /api/users](#put-apiusers) 
+(none/none)
+
+
+
+
+
+### Request body
+
+no content
+
+
+
+### Response 405
+(text/plain; charset=UTF-8)
+
+```
+HTTP method not allowed, supported methods: GET
+```
+
+
 ##  [GET /api/users](#get-apiusers) 
 (none/none)
 
@@ -115,27 +136,6 @@ Name        | required | type     | default value | description | example value
   "id": 5,
   "name": "Jane"
 }]
-```
-
-
-##  [PUT /api/users](#put-apiusers) 
-(none/none)
-
-
-
-
-
-### Request body
-
-no content
-
-
-
-### Response 405
-(text/plain; charset=UTF-8)
-
-```
-HTTP method not allowed, supported methods: GET
 ```
 
 

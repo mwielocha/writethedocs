@@ -13,17 +13,24 @@ case class RouteDetails(
     copy(description = Some(description))
   }
 
-  override def equals(obj: scala.Any): Boolean = {
-    obj match {
-      case RouteDetails(otherRequest, otherResponse, _) =>
-        request.id == otherRequest.id &&
-          response.statusCode == otherResponse.statusCode
-      case _ => false
-    }
-  }
-
-  override def hashCode(): Int = {
-    request.id.hashCode +
-      response.statusCode.hashCode()
-  }
+  val score = 1000 -
+    response.statusCode +
+    description.map(_.length)
+      .getOrElse(0)
+    request.headers.size +
+    request.params.size +
+    request.headers.foldLeft(0) {
+    case (total, d) => total +
+      d.description
+        .map(_.length)
+        .getOrElse(0)
+    } +
+    request.params.foldLeft(0) {
+      case (total, d) => total +
+        d.description
+          .map(_.length)
+          .getOrElse(0)
+    } + request.body
+      .map(_.length)
+      .getOrElse(0)
 }
