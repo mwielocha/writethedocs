@@ -46,8 +46,7 @@
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
 @for(param <- request.params) { @row(param)
-    }
-}
+}}
 
 ### Request body
 
@@ -58,8 +57,7 @@ Name        | required | type     | default value | description | example value
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
 @for(header <- request.headers) { @row(header)
-    }
-}
+}}
 
 ### Response @response.statusCode
 (@response.contentType)
