@@ -13,8 +13,8 @@ import better.files._
 import scala.collection.JavaConverters._
 import scala.collection.breakOut
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.Try
+import scala.concurrent.{Await, Future, TimeoutException}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by mwielocha on 22/10/2016.
@@ -30,6 +30,8 @@ trait SelfDocumentingRoutes {
   private val details = new ConcurrentLinkedQueue[RouteDetails]
 
   protected def documentSettings = DocumentationSettings("./docs")
+
+  protected def defaultAwaitTimeout: FiniteDuration = 250 millis
 
   def documentTitle: String = {
     getClass
@@ -67,7 +69,9 @@ trait SelfDocumentingRoutes {
           }
       }
 
-    }.map(_.toString)
+    }.map(_.toString).recover {
+      case _ => ""
+    }
   }
 
   type RouteHints = PartialFunction[RouteDetails, RouteDetails]
@@ -78,7 +82,12 @@ trait SelfDocumentingRoutes {
   def routeHints: RouteHints = { case x => x }
 
   private def awaitContent(dataBytes: Source[ByteString, Any], encoding: String): String = {
-    Await.result(content(dataBytes, encoding), 25 millis)
+    Try(Await.result(content(dataBytes, encoding), defaultAwaitTimeout)) match {
+      case Success(response) => response
+      case Failure(_: TimeoutException) => s"[ERROR] Response processing took more than $defaultAwaitTimeout, " +
+        s"override `defaultAwaitTimeout: FiniteDuration` for longer timeout."
+      case Failure(e) => s"[ERROR] On response processing: ${e.getMessage}"
+    }
   }
 
   private def awaitContentOrNone(dataBytes: Source[ByteString, Any], encoding: String): Option[String] = {

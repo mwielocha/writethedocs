@@ -16,7 +16,7 @@ scalacOptions in ThisBuild := Seq(
 lazy val root = (project in file(".")).
   settings(
     name := "writethedocs",
-    version := "0.5.0",
+    version := "0.5.3",
     scalaVersion := "2.12.5",
     organization := "io.cyberdolphin"
   ).enablePlugins(SbtTwirl)
