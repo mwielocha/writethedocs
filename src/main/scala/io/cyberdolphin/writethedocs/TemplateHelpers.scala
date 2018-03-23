@@ -1,6 +1,7 @@
 package io.cyberdolphin.writethedocs
 
-import spray.json._
+import io.circe.Printer
+import io.circe.parser._
 
 import scala.util.{Failure, Success, Try}
 
@@ -8,6 +9,8 @@ import scala.util.{Failure, Success, Try}
   * Created by mwielocha on 22/10/2016.
   */
 object TemplateHelpers {
+
+  private val printer = Printer.indented("   ")
 
   def contentTypeBlock(contentType: String): String = {
     contentType match {
@@ -17,8 +20,8 @@ object TemplateHelpers {
   }
 
   def prettify(content: String): String = {
-    Try(content.parseJson)
-      .map(_.prettyPrint)
+    parse(content)
+      .map(_.pretty(printer))
       .getOrElse(content)
   }
 

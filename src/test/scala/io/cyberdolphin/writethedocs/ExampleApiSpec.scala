@@ -1,14 +1,15 @@
 package io.cyberdolphin.writethedocs
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, Uri}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import de.heikoseeberger.akkahttpcirce.{BaseCirceSupport, ErrorAccumulatingCirceSupport}
 import io.cyberdolphin.writethedocs.scalatest.SelfDocumentingRoutesSpec
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpec}
-import spray.json._
+import io.circe._
+import io.circe.generic.semiauto._
 
 /**
   * Created by mwielocha on 22/10/2016.
@@ -16,8 +17,9 @@ import spray.json._
 
 case class User(id: Long, name: String)
 
-trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  implicit val userFormat = jsonFormat2(User)
+trait JsonSupport extends ErrorAccumulatingCirceSupport {
+  implicit val userEncoder: Encoder[User] = deriveEncoder[User]
+  implicit val userDecoder: Decoder[User] = deriveDecoder[User]
 }
 
 class ExampleApiSpec extends WordSpec with MustMatchers
@@ -49,7 +51,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
     User(5L, "Jane")
   )
 
-  val route = Route.seal {
+  val route: Route = Route.seal {
     pathPrefix("api") {
       path("user") {
         get {

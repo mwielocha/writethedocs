@@ -20,7 +20,6 @@
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
   name | false | string |  | Just some user name | John 
-    
 
 
 ### Request body
@@ -34,8 +33,8 @@ no content
 
 ```json
 {
-  "id": 1,
-  "name": "Jim"
+   "id" : 1,
+   "name" : "Jim"
 }
 ```
 
@@ -51,8 +50,8 @@ no content
 
 ```json
 {
-  "id": 2,
-  "name": "Hello"
+   "id" : 2,
+   "name" : "Hello"
 }
 ```
 
@@ -63,8 +62,8 @@ no content
 
 ```json
 {
-  "id": 2,
-  "name": "Hello"
+   "id" : 2,
+   "name" : "Hello"
 }
 ```
 
@@ -100,8 +99,7 @@ HTTP method not allowed, supported methods: GET
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
   offset |  | number |  |  | 0 
-      limit |  | number |  |  | 10 
-    
+  limit |  | number |  |  | 10 
 
 
 ### Request body
@@ -113,29 +111,34 @@ no content
 Name        | required | type     | default value | description | example value
 --- | ---  | --- | --- | --- | ---
   Authorization |  | string |  |  | Basic YWRtaW46YWRtaW4= 
-    
 
 
 ### Response 200
 (application/json)
 
 ```json
-[{
-  "id": 1,
-  "name": "John"
-}, {
-  "id": 2,
-  "name": "Jim"
-}, {
-  "id": 3,
-  "name": "Jake"
-}, {
-  "id": 4,
-  "name": "Jacob"
-}, {
-  "id": 5,
-  "name": "Jane"
-}]
+[
+   {
+      "id" : 1,
+      "name" : "John"
+   },
+   {
+      "id" : 2,
+      "name" : "Jim"
+   },
+   {
+      "id" : 3,
+      "name" : "Jake"
+   },
+   {
+      "id" : 4,
+      "name" : "Jacob"
+   },
+   {
+      "id" : 5,
+      "name" : "Jane"
+   }
+]
 ```
 
 
@@ -157,7 +160,7 @@ no content
 
 ```json
 {
-  "id": 3,
-  "name": "Jake"
+   "id" : 3,
+   "name" : "Jake"
 }
 ```

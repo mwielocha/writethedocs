@@ -10,7 +10,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
 import better.files._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.breakOut
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -31,14 +31,14 @@ trait SelfDocumentingRoutes {
 
   protected def documentSettings = DocumentationSettings("./docs")
 
-  def documentTitle = {
+  def documentTitle: String = {
     getClass
       .getSimpleName
       .replace("Spec", "")
       .replace("Tests", "")
   }
 
-  def documentFileName = {
+  def documentFileName: String = {
     s"$documentTitle.md"
   }
 
@@ -51,7 +51,7 @@ trait SelfDocumentingRoutes {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private def write(doc: Any): Unit = {
-    output << doc.toString.trim
+    output append doc.toString.trim
   }
 
   private def content(dataBytes: Source[ByteString, Any], encoding: String): Future[String] = {
@@ -171,9 +171,11 @@ trait SelfDocumentingRoutes {
 
   def selfDocument(): Unit = {
 
-    if(documentSettings.enabled && details.nonEmpty) {
+    val detailsAsScala = details.asScala
 
-      val filtered = details.filterNot {
+    if(documentSettings.enabled && detailsAsScala.nonEmpty) {
+
+      val filtered = detailsAsScala.filterNot {
         d => !documentSettings.includeBadRequests &&
           (d.response.statusCode / 100) == 4
       }.filterNot {
@@ -199,7 +201,7 @@ trait SelfDocumentingRoutes {
           } (breakOut)
         }
 
-        Try(output < "")
+        Try(output write "")
 
         write {
           txt.Documentation.render(
