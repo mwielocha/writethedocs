@@ -5,15 +5,17 @@ It can basically guess how the api works absed on calls from within tests, so th
 Currently only supported output format is github's `md`.
 
 Example doc can be found here: https://github.com/mwielocha/writethedocs/blob/master/docs/ExampleApi.md
-Example spec is also included: https://github.com/mwielocha/writethedocs/blob/master/src/test/scala/io/cyberdolphin/writethedocs/ExampleApiSpec.scala
+Example spec is also included: https://github.com/mwielocha/writethedocs/blob/master/src/test/scala/io/mwielocha/writethedocs/ExampleApiSpec.scala
 
 ## Usage:
 
 Library includes a utility trait to mixing to scalatest's suites, like so:
 
 ```scala
+import io.mwielocha.writethedocs.scalatest.WriteTheDocs
+
 class ExampleApiSpec extends WordSpec with MustMatchers
-  with JsonSupport with SelfDocumentingRoutesSpec with Directives
+  with JsonSupport with WriteTheDocs with Directives
   with ScalatestRouteTest with BeforeAndAfterAll {
   
   // specs
@@ -21,10 +23,10 @@ class ExampleApiSpec extends WordSpec with MustMatchers
 }
 ```
 
-One must also wrap tested routes in `selfDocumentedRoute` method:
+One must also wrap tested routes in `writeTheDocs` method:
 
 ```scala
-request ~> selfDocumentedRoute(route) ~> check {
+request ~> writeTheDocs(route) ~> check {
   status.intValue() mustBe 200
 }
 ```
@@ -34,8 +36,8 @@ This will create a documention in the output dir, only if all tests succeed.
 One can overrite document settings to specify custom output directory:
 
 ```scala 
-override protected def documentSettings: DocumentationSettings = {
-  super.documentSettings.withOutputDirectory("./docs/api/")
+override protected def docSettings: DocSettings = {
+  super.docSettings.withOutputDirectory("./docs/api/")
 }
   ```
   
