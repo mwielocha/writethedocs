@@ -1,4 +1,4 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 import io.circe.Printer
 import io.circe.parser._

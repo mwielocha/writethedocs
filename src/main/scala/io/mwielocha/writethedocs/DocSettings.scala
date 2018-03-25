@@ -1,9 +1,9 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 /**
   * Created by mwielocha on 23/10/2016.
   */
-case class DocumentationSettings(
+case class DocSettings(
   outputDirectory: String,
   enabled: Boolean = true,
   includeBadRequests: Boolean = false,

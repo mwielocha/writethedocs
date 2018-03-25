@@ -1,4 +1,4 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 /**
   * Created by mwielocha on 22/10/2016.
@@ -9,11 +9,11 @@ case class RouteDetails(
   description: Option[String] = None
 ) {
 
-  def withDescription(description: String) = {
+  def withDescription(description: String): RouteDetails = {
     copy(description = Some(description))
   }
 
-  val score = 1000 -
+  val score: Int = 1000 -
     response.statusCode +
     description.map(_.length)
       .getOrElse(0)
@@ -31,6 +31,6 @@ case class RouteDetails(
           .map(_.length)
           .getOrElse(0)
     } + request.body
-      .map(_.length)
-      .getOrElse(0)
+      .map(_.body.getOrElse(""))
+      .foldLeft(0)(_ + _.length)
 }

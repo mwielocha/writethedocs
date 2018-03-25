@@ -1,13 +1,12 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import akka.http.scaladsl.model.{HttpHeader, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
-import akka.util.ByteString
 import better.files._
 
 import scala.collection.JavaConverters._
@@ -19,7 +18,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by mwielocha on 22/10/2016.
   */
-trait SelfDocumentingRoutes {
+trait DocWriter {
 
   private val UUID = "([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})".r
   private val ObjectId = "([a-fA-F0-9]{24})".r
@@ -29,7 +28,7 @@ trait SelfDocumentingRoutes {
 
   private val details = new ConcurrentLinkedQueue[RouteDetails]
 
-  protected def documentSettings = DocumentationSettings("./docs")
+  protected def docSettings = DocSettings("./docs")
 
   protected def defaultAwaitTimeout: FiniteDuration = 250 millis
 
@@ -45,9 +44,9 @@ trait SelfDocumentingRoutes {
   }
 
   private lazy val output = File(
-    s"${documentSettings.outputDirectory}" +
+    s"${docSettings.outputDirectory}" +
       s"/$documentFileName"
-    ).createIfNotExists(createParents = true)
+  ).createIfNotExists(createParents = true)
 
   implicit def materializer: ActorMaterializer
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,22 +55,62 @@ trait SelfDocumentingRoutes {
     output append doc.toString.trim
   }
 
-  private def content(dataBytes: Source[ByteString, Any], encoding: String): Future[String] = {
+  private val isPrintable: Set[MediaType] = Set(
+    MediaTypes.`application/json`,
+    MediaTypes.`application/javascript`,
+    MediaTypes.`text/plain`,
+    MediaTypes.`application/xml`
+  )
 
-    dataBytes.runWith {
+  private def contentFromEntity(entity: HttpEntity): Future[Seq[Content]] = {
 
-      val zero = new StringBuffer()
+    entity.contentType.mediaType match {
 
-      Sink.fold[StringBuffer, ByteString](zero) {
-        case (buffer, element) =>
-          buffer.append {
-            element.decodeString("UTF-8")
-          }
-      }
+      case t if t.isMultipart =>
+        contentFromMultipartFormData(entity)
 
-    }.map(_.toString).recover {
-      case _ => ""
+      case t if isPrintable(t) =>
+        entity.toStrict(defaultAwaitTimeout).map {
+          strict => Content(
+            body = Some(TemplateHelpers
+            .prettify(strict.data.utf8String))
+          ) :: Nil
+        }
+
+      case _ =>
+        Future.successful {
+          Content(
+            name = None,
+            contentType =
+              Some(entity.contentType.value),
+            body = None
+          ) :: Nil
+        }
     }
+  }
+
+  private def contentFromMultipartFormData(entity: HttpEntity): Future[Seq[Content]] = {
+    val unmarhsaller = implicitly[FromEntityUnmarshaller[Multipart.FormData]]
+
+    for {
+      multipart <- unmarhsaller(entity)
+      strict <- multipart.toStrict(defaultAwaitTimeout)
+      strictParts = strict.strictParts
+      result <- Future.sequence {
+        strictParts.map {
+          part =>
+            contentFromEntity(part.entity).map {
+              _.map {
+                _.copy(
+                  name = Some(part.name),
+                  contentType =
+                    Some(part.entity.contentType.value)
+                )
+              }
+            }
+        }
+      }
+    } yield result.flatten
   }
 
   type RouteHints = PartialFunction[RouteDetails, RouteDetails]
@@ -81,18 +120,22 @@ trait SelfDocumentingRoutes {
   def paramHints: ValueHints = { case x => x }
   def routeHints: RouteHints = { case x => x }
 
-  private def awaitContent(dataBytes: Source[ByteString, Any], encoding: String): String = {
-    Try(Await.result(content(dataBytes, encoding), defaultAwaitTimeout)) match {
-      case Success(response) => response
-      case Failure(_: TimeoutException) => s"[ERROR] Response processing took more than $defaultAwaitTimeout, " +
-        s"override `defaultAwaitTimeout: FiniteDuration` for longer timeout."
-      case Failure(e) => s"[ERROR] On response processing: ${e.getMessage}"
-    }
-  }
 
-  private def awaitContentOrNone(dataBytes: Source[ByteString, Any], encoding: String): Option[String] = {
-    Some(awaitContent(dataBytes, encoding)).filter(_.nonEmpty).map {
-      TemplateHelpers.prettify
+  private def awaitContentFromEntity(entity: HttpEntity): Seq[Content] = {
+
+    Try(Await.result(contentFromEntity(entity), defaultAwaitTimeout)) match {
+
+      case Success(response) => response
+
+      case Failure(_: TimeoutException) => Content(
+        body = Some(s"[ERROR] Response processing took more than $defaultAwaitTimeout, " +
+        s"override `defaultAwaitTimeout: FiniteDuration` for longer timeout.")
+      ) :: Nil
+
+      case Failure(e) =>
+        Content(
+          body = Some(s"[ERROR] On response processing: ${e.getMessage}")
+        ) :: Nil
     }
   }
 
@@ -118,11 +161,9 @@ trait SelfDocumentingRoutes {
     mapResponse { response =>
 
       val responseDetails = ResponseDetails(
-        response.entity.contentType.value,
         headers(response.headers),
-        awaitContentOrNone(
-          response.entity.dataBytes,
-          response.encoding.value),
+        response.entity.contentType.value,
+        awaitContentFromEntity(response.entity).head,
         response.status.intValue()
       )
 
@@ -152,11 +193,11 @@ trait SelfDocumentingRoutes {
     }
   }
 
-  def selfDocumentedRoute(route: Route, endpoint: String): Route = {
-    selfDocumentedRoute(route, Some(endpoint))
+  def writeTheDocs(route: Route, endpoint: String): Route = {
+    writeTheDocs(route, Some(endpoint))
   }
 
-  def selfDocumentedRoute(route: Route, endpoint: Option[String] = None): Route = {
+  def writeTheDocs(route: Route, endpoint: Option[String] = None): Route = {
     // Route.seal()
 
     extractRequest { request =>
@@ -166,9 +207,7 @@ trait SelfDocumentingRoutes {
         endpoint.getOrElse(normalize(request.uri.path).mkString),
         request.entity.contentType.value,
         headers(request.headers),
-        awaitContentOrNone(
-          request.entity.dataBytes,
-          request.encoding.value),
+        awaitContentFromEntity(request.entity),
         params(request.uri)
       )
 
@@ -178,17 +217,17 @@ trait SelfDocumentingRoutes {
     }
   }
 
-  def selfDocument(): Unit = {
+  protected def writeTheTemplate(): Unit = {
 
     val detailsAsScala = details.asScala
 
-    if(documentSettings.enabled && detailsAsScala.nonEmpty) {
+    if(docSettings.enabled && detailsAsScala.nonEmpty) {
 
       val filtered = detailsAsScala.filterNot {
-        d => !documentSettings.includeBadRequests &&
+        d => !docSettings.includeBadRequests &&
           (d.response.statusCode / 100) == 4
       }.filterNot {
-        d => !documentSettings.includeInternalServerErrors &&
+        d => !docSettings.includeInternalServerErrors &&
           (d.response.statusCode / 100) == 5
       }
 
@@ -213,7 +252,7 @@ trait SelfDocumentingRoutes {
         Try(output write "")
 
         write {
-          txt.Documentation.render(
+          txt.TheDoc.render(
             documentTitle,
             scored.sortBy {
               _.request.uri

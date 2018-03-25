@@ -16,9 +16,28 @@
   }
 }
 
-@body(contentType: String, content: Option[String]) = @{
-  val block = contentTypeBlock(contentType)
-  content match {
+@requestBody(request: RequestDetails) = @{
+
+  request.body match {
+    case Nil => "no content"
+    case parts => parts.map { content =>
+
+        val block = contentTypeBlock(content.contentType.getOrElse(request.contentType))
+        val contentType = content.contentType.map(c => s"($c)\n").getOrElse("")
+        val name = content.name.map(n => s"**$n:**\n").getOrElse("")
+        val body = content.body
+            .orElse(content
+                .contentType.map(b => s"[$b]"))
+            .getOrElse("no content")
+
+        s"$name\n$contentType```$block\n$body\n```\n"
+    }
+  }
+}
+
+@responseBody(response: ResponseDetails) = @{
+  val block = contentTypeBlock(response.contentType)
+  response.body.body match {
     case None => "no content"
     case Some(c) => s"```$block\n$c\n```"
   }
@@ -50,7 +69,7 @@ Name        | required | type     | default value | description | example value
 
 ### Request body
 
-@body(request.contentType, request.body)
+@requestBody(request)
 
 @if(request.headers.nonEmpty) {
 ### Request headers
@@ -62,5 +81,5 @@ Name        | required | type     | default value | description | example value
 ### Response @response.statusCode
 (@response.contentType)
 
-@body(response.contentType, response.body)
+@responseBody(response)
 }

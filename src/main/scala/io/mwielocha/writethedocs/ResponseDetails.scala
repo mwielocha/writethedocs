@@ -1,11 +1,11 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 /**
   * Created by mwielocha on 22/10/2016.
   */
 case class ResponseDetails(
-  contentType: String,
   headers: List[ValueDetails],
-  body: Option[String],
+  contentType: String,
+  body: Content,
   statusCode: Int
 )

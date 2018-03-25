@@ -1,12 +1,15 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
+
+import java.nio.file.Paths
 
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
-import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import de.heikoseeberger.akkahttpcirce.{BaseCirceSupport, ErrorAccumulatingCirceSupport}
-import io.cyberdolphin.writethedocs.scalatest.SelfDocumentingRoutesSpec
+import akka.util.ByteString
+import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
+import io.mwielocha.writethedocs.scalatest.WriteTheDocs
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, WordSpec}
 import io.circe._
 import io.circe.generic.semiauto._
@@ -23,7 +26,7 @@ trait JsonSupport extends ErrorAccumulatingCirceSupport {
 }
 
 class ExampleApiSpec extends WordSpec with MustMatchers
-  with JsonSupport with SelfDocumentingRoutesSpec with Directives
+  with JsonSupport with WriteTheDocs with Directives
   with ScalatestRouteTest with BeforeAndAfterAll {
 
 
@@ -38,8 +41,8 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         .withDescription("Just some user name")
   }
 
-  override protected def documentSettings: DocumentationSettings = {
-    super.documentSettings
+  override protected def docSettings: DocSettings = {
+    super.docSettings
       .withIncludeBadRequests(true)
   }
 
@@ -66,7 +69,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
       } ~ pathPrefix("users") {
         get {
           (pathEnd & parameter("offset") & parameter("limit")) {
-            (o, l) => complete {
+            (_, _) => complete {
               users
             }
           } ~ path(IntNumber) { number =>
@@ -74,6 +77,11 @@ class ExampleApiSpec extends WordSpec with MustMatchers
               users(number)
             }
           }
+        }
+      } ~ path("image") {
+        (post & pathEnd & entity(as[Multipart.FormData])) {
+          data =>
+            complete(data.mediaType.value)
         }
       }
     }
@@ -93,7 +101,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         )
       )
 
-      req1 ~> selfDocumentedRoute(route) ~> check {
+      req1 ~> writeTheDocs(route) ~> check {
         entityAs[User] mustBe User(1L, "Jim")
       }
 
@@ -103,7 +111,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         entity = marshal(User(2L, "Hello"))
       )
 
-      req2 ~> selfDocumentedRoute(route) ~> check {
+      req2 ~> writeTheDocs(route) ~> check {
         entityAs[User] mustBe User(2L, "Hello")
       }
 
@@ -123,7 +131,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         )
       )
 
-      req3 ~> selfDocumentedRoute(route) ~> check {
+      req3 ~> writeTheDocs(route) ~> check {
         entityAs[List[User]].size mustBe 5
       }
 
@@ -133,7 +141,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         entity = marshal(User(500L, "Jimbo"))
       )
 
-      req4 ~> selfDocumentedRoute(route) ~> check {
+      req4 ~> writeTheDocs(route) ~> check {
         entityAs[User] mustBe User(500L, "Jimbo")
       }
 
@@ -142,7 +150,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/2")
       )
 
-      req5 ~> selfDocumentedRoute(route) ~> check {
+      req5 ~> writeTheDocs(route) ~> check {
         entityAs[User] mustBe users(2)
       }
 
@@ -151,7 +159,7 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users/3")
       )
 
-      req6 ~> selfDocumentedRoute(route) ~> check {
+      req6 ~> writeTheDocs(route) ~> check {
         entityAs[User] mustBe users(3)
       }
 
@@ -160,8 +168,30 @@ class ExampleApiSpec extends WordSpec with MustMatchers
         uri = Uri("/api/users")
       )
 
-      req7 ~> selfDocumentedRoute(route) ~> check {
+      req7 ~> writeTheDocs(route) ~> check {
         status.intValue() mustBe 405
+      }
+
+      val formData = Multipart.FormData(
+        Multipart.FormData.BodyPart.Strict(
+          "data",
+          HttpEntity.Strict(
+            MediaTypes.`application/json`,
+            ByteString("""{"image": 100}""")
+          )
+        ),
+        Multipart.FormData.BodyPart.fromPath(
+          "attachment",
+          ContentTypes.`application/octet-stream`,
+          Paths.get(getClass.getResource("/test.png").toURI),
+          100000
+        )
+      )
+
+      val req8 = Post("/api/image", formData)
+
+      req8 ~> writeTheDocs(route) ~> check {
+        status.intValue() mustBe 200
       }
     }
   }

@@ -1,4 +1,4 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 /**
   * Created by mwielocha on 23/10/2016.

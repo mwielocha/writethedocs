@@ -16,9 +16,9 @@ scalacOptions in ThisBuild := Seq(
 lazy val root = (project in file(".")).
   settings(
     name := "writethedocs",
-    version := "0.5.3",
+    version := "0.6.0",
     scalaVersion := "2.12.5",
-    organization := "io.cyberdolphin"
+    organization := "io.mwielocha"
   ).enablePlugins(SbtTwirl)
 
 //mainClass in (Compile, run) := Some("...")
@@ -34,6 +34,6 @@ libraryDependencies ++= Seq(
     "de.heikoseeberger" %% "akka-http-circe" % "1.19.0" % "test"
   )
 
-TwirlKeys.templateImports += "io.cyberdolphin.writethedocs._"
+TwirlKeys.templateImports += "io.mwielocha.writethedocs._"
 
 

@@ -2,12 +2,48 @@
 
 * [ExampleApi](#exampleapi)
 
+    *  [POST /api/image](#post-apiimage)  
     *  [GET /api/user](#get-apiuser)  
     *  [POST /api/user](#post-apiuser)  
     *  [PUT /api/users](#put-apiusers)  
     *  [GET /api/users](#get-apiusers)  
     *  [GET /api/users/{integer}](#get-apiusersinteger)  
 
+
+
+##  [POST /api/image](#post-apiimage) 
+(multipart/form-data; boundary=q-Ztd1i5M1K6FiOflvFmIeNR)
+
+
+
+
+
+### Request body
+
+**data:**
+
+(application/json)
+```json
+{
+   "image" : 100
+}
+```
+**attachment:**
+
+(application/octet-stream)
+```
+[application/octet-stream]
+```
+
+
+
+
+### Response 200
+(application/json)
+
+```json
+"multipart/form-data"
+```
 
 
 ##  [GET /api/user](#get-apiuser) 
@@ -24,7 +60,12 @@ Name        | required | type     | default value | description | example value
 
 ### Request body
 
-no content
+
+(none/none)
+```
+[none/none]
+```
+
 
 
 
@@ -48,12 +89,14 @@ no content
 
 ### Request body
 
+
 ```json
 {
    "id" : 2,
    "name" : "Hello"
 }
 ```
+
 
 
 
@@ -77,7 +120,12 @@ no content
 
 ### Request body
 
-no content
+
+(none/none)
+```
+[none/none]
+```
+
 
 
 
@@ -104,7 +152,12 @@ Name        | required | type     | default value | description | example value
 
 ### Request body
 
-no content
+
+(none/none)
+```
+[none/none]
+```
+
 
 
 ### Request headers
@@ -151,7 +204,12 @@ Name        | required | type     | default value | description | example value
 
 ### Request body
 
-no content
+
+(none/none)
+```
+[none/none]
+```
+
 
 
 

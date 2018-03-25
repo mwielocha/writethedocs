@@ -1,4 +1,4 @@
-package io.cyberdolphin.writethedocs
+package io.mwielocha.writethedocs
 
 /**
   * Created by mwielocha on 22/10/2016.
@@ -8,13 +8,15 @@ case class RequestDetails(
   uri: String,
   contentType: String,
   headers: List[ValueDetails],
-  body: Option[String],
+  body: Seq[Content],
   params: List[ValueDetails]
 ) {
 
-  val id = {
+  val id: String = {
     s"$method-$uri"
       .replaceAll("/|\\{|\\}", "")
       .toLowerCase
   }
 }
+
+
