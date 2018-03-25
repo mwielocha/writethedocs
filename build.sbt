@@ -36,4 +36,25 @@ libraryDependencies ++= Seq(
 
 TwirlKeys.templateImports += "io.mwielocha.writethedocs._"
 
+// POM settings for Sonatype
+homepage := Some(url("https://github.com/mwielocha/writethedocs"))
+scmInfo := Some(
+  ScmInfo(url("https://github.com/mwielocha/writethedocs"),
+  "git@github.com:mwielocha/writethedocs.git"))
+
+developers := List(Developer("mwielocha",
+  "Mikolaj Wielocha",
+  "mwielocha@icloud.com",
+  url("https://github.com/mwielocha")))
+licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
+publishMavenStyle := true
+
+// Add sonatype repository settings
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
+
 
