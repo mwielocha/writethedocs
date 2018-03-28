@@ -7,6 +7,16 @@ Currently only supported output format is github's `md`.
 Example doc can be found here: https://github.com/mwielocha/writethedocs/blob/master/docs/ExampleApi.md
 Example spec is also included: https://github.com/mwielocha/writethedocs/blob/master/src/test/scala/io/mwielocha/writethedocs/ExampleApiSpec.scala
 
+## Installation
+
+Artifacts are published to maven central, so just do
+
+```scala
+libraryDependencies ++= Seq(
+  "io.mwielocha" %% "writethedocs" % "0.6.1"
+)
+```
+
 ## Usage:
 
 Library includes a utility trait to mixing to scalatest's suites, like so:
