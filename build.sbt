@@ -5,6 +5,8 @@ val akkaVersion = "10.0.11"
 
 val circeVersion = "0.9.2"
 
+ensimeIgnoreScalaMismatch in ThisBuild := true
+
 scalacOptions in ThisBuild := Seq(
   "-language:existentials",
   "-language:higherKinds",

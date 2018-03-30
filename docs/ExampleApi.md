@@ -12,7 +12,7 @@
 
 
 ##  [POST /api/image](#post-apiimage) 
-(multipart/form-data; boundary=q-Ztd1i5M1K6FiOflvFmIeNR)
+(multipart/form-data; boundary=b7nKPzJpa0Do+YuCSNnFspJt)
 
 
 
